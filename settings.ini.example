@@ -1,0 +1,40 @@
+[general]
+service_url = https://pss.example.org
+index_page_title = Change your password on example.org
+reset_page_title = Reset your password on example.org
+
+[ldap]
+host = localhost
+port = 636
+use_ssl = true
+base = ou=People,dc=example,dc=org
+search_filter = uid={uid}
+
+# Uncomment for AD / Samba 4
+#type = ad
+#ad_domain = ad.example.org
+#search_filter = sAMAccountName={uid}
+
+password_manager_uid = ldap_manager
+password_manager_password = BLAbla!765
+
+# Uncomment following lines to enable password quality checks
+#[password_quality]
+#min_length = 8
+#mixed_case_required = true
+#digit_required = true
+#special_required = false
+#dictionary_check_enabled = true
+#dictionary_file = dictionary_example.txt
+
+[password_reset]
+# salt is any b32-encoded string
+salt = GENERICSALT5====
+smtp_relay = localhost
+smtp_from = helpdesk@example.org
+mail_subject = Password reset requested on example.org
+
+[server]
+server = auto
+host = localhost
+port = 8080
