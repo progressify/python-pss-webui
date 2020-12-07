@@ -15,6 +15,7 @@ search_filter = uid={uid}
 #ad_domain = ad.example.org
 #search_filter = sAMAccountName={uid}
 
+# if only with the username not work try to insert the full dn: cn=admin,dc=example,dc=org
 password_manager_uid = ldap_manager
 password_manager_password = BLAbla!765
 

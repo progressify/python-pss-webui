@@ -21,7 +21,8 @@ from ldap3.core.exceptions import LDAPBindError, LDAPConstraintViolationResult, 
 BASE_DIR = path.dirname(__file__)
 LOG = logging.getLogger(__name__)
 LOG_FORMAT = '%(asctime)s %(levelname)s: %(message)s'
-VERSION = '0.1.0'
+VERSION = '0.1.1'
+
 
 @get('/')
 def get_index():
@@ -207,7 +208,10 @@ def reset_password_ldap(conf, username, new_pass):
 
 
 def reset_password_ad(conf, username, new_pass):
-    manager_user = conf['password_manager_uid'] + '@' + conf['ad_domain']
+    if 'ad_domain' in conf:
+        manager_user = conf['password_manager_uid'] + '@' + conf['ad_domain']
+    else:
+        manager_user = conf['password_manager_uid']
     manager_password = conf['password_manager_password']
     user_dn = find_user_attribute(conf, username, 'distinguishedName')
 
@@ -217,7 +221,10 @@ def reset_password_ad(conf, username, new_pass):
 
 
 def find_user_attribute(conf, uid, attribute):
-    manager_user = conf['password_manager_uid'] + '@' + conf['ad_domain']
+    if 'ad_domain' in conf:
+        manager_user = conf['password_manager_uid'] + '@' + conf['ad_domain']
+    else:
+        manager_user = conf['password_manager_uid']
     manager_password = conf['password_manager_password']
     search_filter = conf['search_filter'].replace('{uid}', uid)
 
@@ -225,12 +232,15 @@ def find_user_attribute(conf, uid, attribute):
         with connect_ldap(conf, authentication=SIMPLE, user=manager_user, password=manager_password) as c:
             c.bind()
             c.search(conf['base'], "(%s)" % search_filter, SUBTREE, attributes=ALL_ATTRIBUTES)
-            
-            if len(c.response) < 2:
+
+            if len(c.response) < 1:
                 LOG.error(f'User {uid} not found.')
                 return None
+
             if attribute in c.response[0]['attributes']:
                 return c.response[0]['attributes'][attribute]
+            elif 'dn' in c.response[0]:
+                return c.response[0]['dn']
             else:
                 return None
 
